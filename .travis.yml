@@ -16,6 +16,9 @@ env:
    - SAMPLE_APP=1  # sample app tests
 
 before_install:
+  - sudo apt-add-repository -y ppa:travis-ci/sqlite3
+  - sudo apt-get -y update
+  - sudo apt-get -y install sqlite3=3.7.15.1-1~travis1
   - pip install --no-cache-dir -U -r requirements-test.txt
   - flake8
   - isort --check-only --recursive --diff .
