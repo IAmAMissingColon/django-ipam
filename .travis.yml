@@ -9,16 +9,23 @@ python:
 branches:
   only:
     - master
+    - sqlite3
 
 env:
   matrix:
    - ''  # main tests
    - SAMPLE_APP=1  # sample app tests
 
+ addons:
+   apt:
+     sources:
+       - sourceline: 'ppa:travis-ci/sqlite3'
+     packages:
+       - sqlite3
+
 before_install:
-  - sudo apt-add-repository -y ppa:travis-ci/sqlite3
-  - sudo apt-get -y update
-  - sudo apt-get -y install sqlite3=3.7.15.1-1~travis1
+  - sudo echo "deb http://cz.archive.ubuntu.com/ubuntu eoan main " > /etc/apt/sources.list
+  - echo $(sudo apt policy sqlite3)
   - pip install --no-cache-dir -U -r requirements-test.txt
   - flake8
   - isort --check-only --recursive --diff .
@@ -27,7 +34,7 @@ before_install:
   - jslint ./django_ipam/static/django-ipam/js/*.js
 
 install:
-  - pip install "django>=2.0,<2.2"
+  - pip install "django>=2.0,<2.3"
   - python setup.py -q develop
 
 before_script:

@@ -55,6 +55,9 @@ DATABASES = {
     }
 }
 
+SPATIALITE_LIBRARY_PATH = 'mod_spatialite.so'
+
+
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
