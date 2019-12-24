@@ -1,6 +1,5 @@
 language: python
 sudo: false
-dist: bionic
 
 cache: pip
 
@@ -12,21 +11,35 @@ python:
 branches:
   only:
     - master
+    - travis/fix
+
+dist:
+  - trusty
 
 env:
   matrix:
    - ''  # main tests
    - SAMPLE_APP=1  # sample app tests
 
+addons:
+  apt:
+     sources:
+       - sourceline: 'ppa:travis-ci/sqlite3'
+     packages:
+       - sqlite3
+
 before_install:
+  - sudo echo "deb http://cz.archive.ubuntu.com/ubuntu eoan main " > /etc/apt/sources.list
+  - echo $(sudo apt policy sqlite3)
   - pip install --no-cache-dir -U -r requirements-test.txt
-  - openwisp-utils-qa-checks --migration-path "./django_ipam/migrations/"
-  - openwisp-utils-qa-checks --migration-path "./tests/sample_ipam/migrations/" --skip-checkcommit --skip-checkendline --skip-flake8 --skip-isort
+  - flake8
+  - isort --check-only --recursive --diff .
+  - ./runcheckmigration
   - npm install -g jslint
   - jslint ./django_ipam/static/django-ipam/js/*.js
 
 install:
-  - pip install "django>=2.0,<2.3"
+  - pip install "django>=2.0,<2.2"
   - python setup.py -q develop
 
 before_script:
@@ -36,9 +49,17 @@ before_script:
       echo $OUTPUT
       echo $OUTPUT | grep "No changes detected"
     fi
-
+    
 script:
   - coverage run --source=django_ipam runtests.py
+  - |
+    if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
+      # gets commit message of last commit before pull request merge
+      COMMIT_MESSAGE=$(git log $TRAVIS_PULL_REQUEST_SHA --format=%B -n 1)
+      printf "Checking commit message:\n\n"
+      printf "$COMMIT_MESSAGE\n\n"
+      checkcommit --message "$COMMIT_MESSAGE"
+    fi
 
 after_success:
   - coveralls
