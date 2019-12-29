@@ -5,13 +5,13 @@ dist: bionic
 cache: pip
 
 python:
-  - "3.5"
   - "3.6"
   - "3.7"
 
 branches:
   only:
     - master
+    - Support/Django3
 
 env:
   matrix:
@@ -26,7 +26,7 @@ before_install:
   - jslint ./django_ipam/static/django-ipam/js/*.js
 
 install:
-  - pip install "django>=2.0,<2.3"
+  - pip install "django>=2.0,<3.2"
   - python setup.py -q develop
 
 before_script:
